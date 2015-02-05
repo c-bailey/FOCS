@@ -7,7 +7,7 @@
 
    Email: chelsea.bailey@students.olin.edu
 
-   Comments:
+   Comments: This homework was the most fun I've had all week! It was enjoyable and went by pretty quick ^_^ looking forward to more!
 
  *)
 
@@ -110,7 +110,16 @@ type number = I of int
             | F of float
 
 let add (n1,n2) = 
-  failwith "Not implemented"
+  match (n1,n2) with
+    (I i, I j) -> I (i+j)
+  | (I i, F f) -> F (float(i) +. f)
+  | (I i, R r) -> R (addR (r,{num = i; den = 1}))
+  | (F f, F g) -> F (f+.g)
+  | (F f, I j) -> F (f +. float(j))
+  | (F f, R r) -> F (f +. floatR(r))
+  | (R r, R s) -> R (addR (r,s))
+  | (R r, I i) -> R (addR (r,{num = i; den = 1}))
+  | (R r, F f) -> F (floatR(r) +. f);;
 
 
 
@@ -133,11 +142,36 @@ let sample2 = Or(Not(Variable "a"),And(Variable "b",Constant(True)))
 
 let sample3 = And(Variable "a", Not(Variable "a"))
 
-let vars (bexpr) = 
-  failwith "Not implemented"
+let rec vars (bexpr) = 
+  match bexpr with
+    Constant c -> []
+  | Variable v -> [v]
+  | And (a,b) -> append(vars(a),vars(b))
+  | Or (a,b) -> append(vars(a),vars(b))
+  | Not n -> vars(n);;
 
-let subst (bexpr,var,sub) = 
-  failwith "Not implemented"
+let rec subst (bexpr,var,sub) = 
+  match bexpr with
+    Constant c -> Constant c
+  | Variable v -> if v = var then sub else Variable v
+  | And (a,b) -> And (subst(a,var,sub),subst(b,var,sub))
+  | Or (a,b) -> Or (subst(a,var,sub),subst(b,var,sub))
+  | Not n -> Not (subst(n,var,sub));;
 
-let eval (bexpr) = 
-  failwith "Not implemented"
+let toBool (bconstopt) =
+  match bconstopt with
+  | Some True -> true
+  | Some False -> false;;
+
+let toBcon (boo) =
+  match boo with
+    true -> Some True
+  | false -> Some False;;
+
+let rec eval (bexpr) = 
+  match bexpr with
+    Constant c -> Some c
+  | Variable v -> None
+  | And (a,b) -> if eval(a) = None || eval(b) = None then None else toBcon( toBool(eval(a)) && toBool(eval(b)) )  
+  | Or (a,b) -> if eval(a) = None || eval(b) = None then None else toBcon( toBool(eval(a)) || toBool(eval(b)) ) 
+  | Not n -> if eval(n) = None then None else if eval(n) = Some True then Some False else Some True;;
