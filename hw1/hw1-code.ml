@@ -17,19 +17,26 @@
  *  Question 1
  *)
 
-let append (xs,ys) =   
-  (* Replace with your implementation of append *)
-  failwith "Not implemented"
+let rec append (xs,ys) =  
+  match xs with
+    [] -> ys
+  | h::t -> h::append(t,ys);;
 
 
-let flatten (xs) = 
-  failwith "Not implemented"
+let rec flatten (xs) = 
+  match xs with
+    [] -> []
+  | h::t -> append(h,flatten(t));;
 
-let double (xs) = 
-  failwith "Not implemented"
+let rec double (xs) = 
+  match xs with
+    [] -> []
+  | h::t -> 2*h::double(t);;
 
-let last (xs) = 
-  failwith "Not implemented"
+let rec last (xs) = 
+  match xs with
+    [] -> None
+  | h::t -> if t == [] then Some h else last(t);; 
 
 
 
