@@ -44,22 +44,34 @@ let rec last (xs) =
  *  Question 2 
  *)
 
-let setIn (elt,set) = 
-  failwith "Not implemented"
+let rec setIn (elt,set) = 
+  match set with
+    [] -> false
+  | h::t -> if elt == h then true else setIn(elt,t);;
 
-let setSub (set1,set2) = 
-  failwith "Not implemented"
+let rec setSub (set1,set2) = 
+  match set1 with
+    [] -> true
+  | h::t -> if setIn(h,set2) == false then false else setSub(t,set2);;
 
 let setEqual (set1,set2) = 
-  failwith "Not implemented"
+  match set1 with
+    [] -> if set2 == [] then true else false
+  | h::t -> if setSub(set1,set2) == true && setSub(set2,set1) == true then true else false;;
 
 let setUnion (set1,set2) = 
-  failwith "Not implemented"
+  match set1 with
+    [] -> set2
+  | h::t -> append(set1,set2);;
 
 let setInter (set1,set2) = 
-  failwith "Not implemented"
+  let 
+  match set1 with
+    [] -> []
+  | h::t if setIn(h,set2) == true then (add somehow?) else
 
 let setSize (set) =
+  let counter =
   failwith "Not implemented"
 
 
