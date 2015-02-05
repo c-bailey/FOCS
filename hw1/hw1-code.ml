@@ -36,7 +36,7 @@ let rec double (xs) =
 let rec last (xs) = 
   match xs with
     [] -> None
-  | h::t -> if t == [] then Some h else last(t);; 
+  | h::t -> if t = [] then Some h else last(t);; 
 
 
 
@@ -47,17 +47,17 @@ let rec last (xs) =
 let rec setIn (elt,set) = 
   match set with
     [] -> false
-  | h::t -> if elt == h then true else setIn(elt,t);;
+  | h::t -> if elt = h then true else setIn(elt,t);;
 
 let rec setSub (set1,set2) = 
   match set1 with
     [] -> true
-  | h::t -> if setIn(h,set2) == false then false else setSub(t,set2);;
+  | h::t -> if not setIn(h,set2) then false else setSub(t,set2);;
 
 let setEqual (set1,set2) = 
   match set1 with
-    [] -> if set2 == [] then true else false
-  | h::t -> if setSub(set1,set2) == true && setSub(set2,set1) == true then true else false;;
+    [] -> if set2 = [] then true else false
+  | h::t -> if setSub(set1,set2) && setSub(set2,set1) then true else false;;
 
 let setUnion (set1,set2) = 
   match set1 with
@@ -65,14 +65,19 @@ let setUnion (set1,set2) =
   | h::t -> append(set1,set2);;
 
 let setInter (set1,set2) = 
-  let 
-  match set1 with
-    [] -> []
-  | h::t if setIn(h,set2) == true then (add somehow?) else
+  let rec setInterHelper (set1,set2,set3) =
+    (match set1 with
+      [] -> set3
+    | h::t -> if setIn(h,set2) then setInterHelper(t,set2,h::set3) else setInterHelper (t,set2,set3))
+  in setInterHelper (set1,set2,[]);;
+
 
 let setSize (set) =
-  let counter =
-  failwith "Not implemented"
+  let rec counter (set1, set2, n) =
+    match set1 with
+      [] -> n
+    | h::t -> if setIn(h,set2) then counter(t,set2,n) else counter(t,h::set2,n+1)
+  in counter (set,[],0);;
 
 
 (* 
@@ -87,14 +92,18 @@ let fourth = {num=1; den=4}
 
 let floatR (r) = float(r.num) /. float(r.den)
 
+let rec gcd (a,b) =
+  if b = 0 then a else gcd(b,a mod b);;
+
 let simplify (r) = 
-  failwith "Not implemented"
+  let divid = gcd(abs(r.num),abs(r.den)) in
+  {num = r.num/divid; den = r.den/divid};;
 
 let addR (r1,r2) = 
-  failwith "Not implemented"
+  simplify({num = (r1.num*r2.den) + (r2.num*r1.den); den = r1.den*r2.den});;
 
 let multR (r1,r2) = 
-  failwith "Not implemented"
+  simplify({num = r1.num*r2.num; den = r1.den*r2.den});;
 
 type number = I of int
             | R of rat
