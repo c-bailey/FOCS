@@ -3,9 +3,9 @@
    Homework 2 code
 
 
-   Name:
+   Name: Chelsea Bailey
 
-   Email:
+   Email: chelsea.bailey@students.olin.edu
 
    Comments:
 
@@ -179,7 +179,13 @@ let strings (alphabet, n) =
  *)
 
 let isFinal (dfa,state) = 
-  failwith "isFinal not implemented"
+  let rec isFinalHelper (finals,s) =
+    match finals with
+      [] -> false
+    | h::t -> if h = s then true else isFinalHelper(t,s)
+  in isFinalHelper(dfa.final,state);;
+
+
 
 
 
@@ -193,7 +199,16 @@ let isFinal (dfa,state) =
  *
  *)
 
+
+
 let transition (dfa,state,input) = 
+  let rec checker(delta,state,input) =
+    match delta with
+      [] -> "nada"
+    | h::t -> match h with
+      (a,b,c) -> if a = state && b=input then c else checker(t,state,input)
+  in checker(dfa.delta,state,input);;
+
    failwith "transition not implemented"
 
 
@@ -209,7 +224,10 @@ let transition (dfa,state,input) =
  *
  *)
 
-let extendedTransition (dfa, state, cs) = 
+let rec extendedTransition (dfa, state, cs) = 
+  match cs with
+    [] -> state
+  | h::t -> extendedTransition(dfa, transition(dfa,state,h),t);;
   failwith "extendedTransition not implemented"
 
 
@@ -224,7 +242,7 @@ let extendedTransition (dfa, state, cs) =
  *)
 
 let accept (dfa, input) = 
-  failwith "accept not implemented"
+  isFinal(dfa,extendedTransition(dfa,dfa.start,explode(input)));;
 
 
 
@@ -236,20 +254,77 @@ let accept (dfa, input) =
  *
  *)
 
-let dfaQuestion1a () = 
-  failwith "dfaQuestion1a not implemented"
+let dfaQuestion1a () =
+  {alphabet = ['a'; 'b'];          
+   states = ["start"; "one"; "two"; "three"; "sink"];
+   start = "start";
+   delta = [("start", 'a', "one");
+            ("start", 'b', "one");
+            ("one", 'a', "two");
+            ("one", 'b', "two"); 
+            ("two", 'a', "three");
+            ("two", 'b', "three"); 
+            ("three", 'a', "sink");
+            ("three", 'b', "sink"); 
+            ("sink", 'a', "sink");
+            ("sink", 'b', "sink")];
+   final = ["three"]};;
 
 let dfaQuestion1b () = 
-  failwith "dfaQuestion1b not implemented"
+  {alphabet = ['a'; 'b'];          
+   states = ["start"; "one"; "two"; "three"];
+   start = "start";
+   delta = [("start", 'a', "one");
+            ("start", 'b', "one");
+            ("one", 'a', "two");
+            ("one", 'b', "two"); 
+            ("two", 'a', "three");
+            ("two", 'b', "three"); 
+            ("three", 'a', "one");
+            ("three", 'b', "one")]; 
+   final = ["three"]};;
 
 let dfaQuestion1c () = 
-  failwith "dfaQuestion1c not implemented"
+  {alphabet = ['a'; 'b'];          
+   states = ["start"; "reada";];
+   start = "start";
+   delta = [("start", 'a', "reada");
+            ("start", 'b', "start");
+            ("reada", 'a', "start");
+            ("reada", 'b', "reada")];  
+   final = ["reada"]};;
 
 let dfaQuestion1d () = 
-  failwith "dfaQuestion1d not implemented"
+  {alphabet = ['a'; 'b'];          
+   states = ["start"; "readb";"sink"];
+   start = "start";
+   delta = [("start", 'a', "start");
+            ("start", 'b', "readb");
+            ("readb", 'a', "start");
+            ("readb", 'b', "sink");
+            ("sink", 'a', "sink");
+            ("sink", 'b', "sink")];  
+   final = ["start"]};;
 
 let dfaQuestion1e () = 
-  failwith "dfaQuestion1e not implemented"
+  {alphabet = ['a'; 'b'];          
+   states = ["start"; "one"; "two"; "three"; "four"; "five"; "six"];
+   start = "start";
+   delta = [("start", 'a', "one");
+            ("start", 'b', "one");
+            ("one", 'a', "two");
+            ("one", 'b', "two"); 
+            ("two", 'a', "three");
+            ("two", 'b', "three"); 
+            ("three", 'a', "four");
+            ("three", 'b', "four"); 
+            ("four", 'a', "five");
+            ("four", 'b', "five");
+            ("five", 'a', "six");
+            ("five", 'b', "six");
+            ("six", 'a', "one");
+            ("six", 'b', "one")];
+   final = ["two";"three";"four";"six"]};;
 
 
 
