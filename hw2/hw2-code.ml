@@ -228,7 +228,7 @@ let rec extendedTransition (dfa, state, cs) =
   match cs with
     [] -> state
   | h::t -> extendedTransition(dfa, transition(dfa,state,h),t);;
-  failwith "extendedTransition not implemented"
+
 
 
 (*
