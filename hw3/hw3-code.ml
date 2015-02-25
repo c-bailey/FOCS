@@ -8,7 +8,9 @@
    Email: chelsea.bailey@students.olin.edu
 
    Comments:
-
+  To answer question 1. If the first language is a regular language for which a dfa exists, then the language that consists of each word in the first
+  language, only backwards, is also a regular language for which a dfa exists. It would be a dfa that is the reverse of the first language's dfa.
+  The start state and end state would be flipped.
  *)
 
 
@@ -151,8 +153,6 @@ let transition (dfa,state,input) =
       (a,b,c) -> if a = state && b=input then c else checker(t,state,input)
   in checker(dfa.delta,state,input);;
 
-
-
 let rec extendedTransition (dfa, state, cs) = 
   match cs with
     [] -> state
@@ -194,19 +194,36 @@ let cross (xs, ys) =
     | h::t -> helpcross(t,ys,pairing(ys,h,fin)) in
   helpcross(ys,xs,[]);;
 
+let rec deltaForm(dfa1,dfa2,states,alph,output) =
+  match alph with
+    [] -> output
+  | h::t -> match states with
+              | (s1,s2) ->  deltaForm(dfa1,dfa2,states,t,((s1,s2),h,(transition(dfa1,s1,h),transition(dfa2,s2,h)))::output)
+
+let rec unionHelper(dfa1,dfa2,states, alph, output) =
+  match states with
+    [] -> output
+  | h::t -> unionHelper(dfa1,dfa2,t,alph,deltaForm(dfa1,dfa2,h,alph,output));;
 
 let union (dfa1, dfa2) = 
   {states = cross(dfa1.states,dfa2.states);
-   alphabet = cross(dfa1.alphabet,dfa2.alphabet);          
-   start = cross(dfa1.start,dfa2.start);
-   delta = cross(dfa1.delta,dfa2.delta); 
+   alphabet = dfa1.alphabet;         
+   start = (dfa1.start,dfa2.start);
+   delta = unionHelper(dfa1,dfa2,cross(dfa1.states,dfa2.states),dfa1.alphabet,[]); 
    final = cross(dfa1.final,dfa2.final)};;
 
-(* type 'a dfa = {states :   'a list;
-             alphabet : char list;
-         start :    'a;
-           delta :    ('a * char * 'a) list;
-         final :    'a list} *)
+(* let bPlus =                     
+  (* language: all nonempty strings of b's *)
+  {alphabet= ['a'; 'b'];
+   states= ["start"; "ok"; "sink"];
+   start= "start";
+   delta = [("start", 'b', "ok");
+            ("start", 'a', "sink");
+            ("ok",    'b', "ok");
+            ("ok",    'a', "sink");
+            ("sink",  'b', "sink");
+            ("sink",  'a', "sink")];
+   final = ["ok"]} *)
 
 
 (*
@@ -299,10 +316,30 @@ let abaab = {nfa_states = ["q1"; "q2"; "q3"; "q4"; "q5"];
 
 
 let nfa_hasFinal (nfa,states) = 
-  failwith "nfa_hasFinal not implemented"
+  let rec matcher(fin,states) =
+    match states with
+      [] -> false
+    | h::t -> if h = fin then true else matcher(fin,t) in
+  let rec hasFinHelper (nf_finals,states) =
+    match nf_finals with
+      [] -> false
+    | h::t -> if matcher(h,states) then true else hasFinHelper(t,states) in
+  hasFinHelper(nfa.nfa_final,states);;
+
+
 
 let nfa_transition (nfa,states,input) = 
-  failwith "nfa_transition not implemented"
+  let rec checker(delta,state,input,output) =
+    match delta with
+      [] -> output
+    | h::t -> match h with
+      (a,b,c) -> if a = state && b=input then c::output else checker(t,state,input,output) in 
+  let rec transHelper(delta,states,input,output) =
+    match states with
+      [] -> output
+    | h::t -> transHelper(delta,t,input,checker(delta,h,input,output)) in
+  List.flatten(transHelper(nfa.nfa_delta,states,input,[]));;
+
 
 
 
@@ -312,12 +349,13 @@ let nfa_transition (nfa,states,input) =
  *)
 
 
-let nfa_extendedTransition (nfa, states, cs) = 
-  failwith "nfa_extendedTransition not implemented"
-
+let rec nfa_extendedTransition (nfa, states, cs) = 
+  match cs with
+    [] -> states
+  | h::t -> nfa_extendedTransition(nfa,nfa_transition(nfa,states,h),t);;
 
 let nfa_accept (nfa, input) = 
-  failwith "nfa_accept not implemented"
+  nfa_hasFinal(nfa,nfa_extendedTransition(nfa,[nfa.nfa_start],explode(input)));;
 
 
 
